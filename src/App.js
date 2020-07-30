@@ -41,8 +41,8 @@ class App extends Component {
     this.state = {
       title: 'Catalog Viewer',
       catalogs: [...catalogs],
-      currentIndex: -1,
-      catalogSelected: catalogs[3],
+      currentIndex: 0,
+      catalogSelected: catalogs[0],
       slideActive: false,
       slideTimer: null,
       slideDuration: 3000,
@@ -56,27 +56,64 @@ class App extends Component {
   }
 
   selectedCatalog(index) {
-
+    this.setState({
+      ...this.state,
+      currentIndex: index,
+      catalogSelected: catalogs[index]
+    }, () => this.resetSlideTimer(this.state.slideActive))
   }
 
   previousClick() {
-
+    this.setState(prevState => ({
+      ...prevState,
+      currentIndex: (prevState.currentIndex - 1) >= 0 ? (prevState.currentIndex - 1) : (catalogs.length-1),
+      catalogSelected: catalogs[(prevState.currentIndex - 1) >= 0 ? (prevState.currentIndex - 1) : (catalogs.length-1)]
+    }))
   }
 
   nextClick() {
-
+    this.setState(prevState => ({
+      ...prevState,
+      currentIndex: (prevState.currentIndex + 1) % catalogs.length,
+      catalogSelected: catalogs[(prevState.currentIndex + 1) % catalogs.length]
+    }))
   }
 
   slideChange(event) {
-
+    this.setState(prevState => ({
+      ...prevState,
+      slideActive: !prevState.slideActive,
+    }), () => this.onSlideChange())
+    
   }
 
   resetSlideTimer(isActive = false) {
-
+    if(isActive){
+      clearInterval(this.state.slideTimer)
+      let slideTimer = setInterval(() => this.nextClick(), this.state.slideDuration)
+      this.setState({
+        ...this.state,
+        slideTimer: slideTimer
+      })
+    }
   }
 
   onSlideChange() {
-
+    if(this.state.slideActive){
+      let slideTimer = setInterval(() => this.nextClick(), this.state.slideDuration)
+      this.setState({
+        ...this.state,
+        slideTimer: slideTimer
+      })
+      
+    }else {
+      clearInterval(this.state.slideTimer)
+      this.setState({
+        ...this.state,
+        slideTimer: null
+      })
+    }
+    
   }
 
   render() {
